@@ -1,0 +1,29 @@
+[general]
+name=SVG to QGIS Style
+qgisMinimumVersion=4.0
+qgisMaximumVersion=4.99
+
+description=Converts SVG symbols (single file or entire folder) into a single QGIS style file (.xml), with preview and customization of background and fill colors.
+
+about=This plugin allows you to select one or more SVG files (including from an entire folder and its subfolders) and generate a single QGIS style file (.xml) that can be imported into the Style Manager. You can view a 64x64 preview of each icon, apply custom background and fill colors to all or only selected items, and restore the original colors at any time.
+
+version=1.0.0
+author=Dr. Geol. Faustino Cetraro
+email=geol-faustino@libero.it
+
+tracker=https://github.com/drFaustino/svgtoqgisstyle
+repository=https://github.com/drFaustino/svgtoqgisstyle
+homepage=https://github.com/drFaustino/svgtoqgisstyle
+
+hasProcessingProvider=False
+tags=svg,style,symbol,marker,convert,icon,simboli,stile
+
+category=Vector
+icon=icon.png
+
+experimental=False
+deprecated=False
+server=False
+
+changelog=1.0.0
+  - Initial Release
