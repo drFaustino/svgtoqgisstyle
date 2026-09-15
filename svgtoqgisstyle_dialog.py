@@ -34,7 +34,6 @@ from qgis.PyQt.QtWidgets import (
     QFileDialog,
     QColorDialog,
     QMessageBox,
-    QWidget,
 )
 
 from . import svg_utils
@@ -434,7 +433,9 @@ class SvgToQgisStyleDialog(QDialog):
                 self._set_controls_enabled(True)
                 QMessageBox.critical(
                     self, self.tr('Error'),
-                    self.tr('Could not create folder for recolored SVG files:\n{error}').format(error=str(exc))
+                    self.tr(
+                        'Could not create folder for recolored SVG files:\n{error}'
+                    ).format(error=str(exc))
                 )
                 return
 

@@ -22,8 +22,9 @@ Limiti noti (euristica di ricolorazione):
 
 import os
 import re
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
+import xml.etree.ElementTree as ET  # nosec B405 - usato SOLO per costruire l'XML
+# di stile (Element/SubElement/tostring): in questo modulo non viene mai
+# effettuato il parsing di XML proveniente da fonti esterne o non attendibili.
 
 from qgis.PyQt.QtCore import Qt, QByteArray, QSize
 from qgis.PyQt.QtGui import QPixmap, QPainter, QColor
@@ -252,7 +253,9 @@ def build_svg_marker_symbol_element(name, svg_path, fill_rgba, outline_rgba,
     ET.SubElement(ddp_option, 'Option', {'name': 'type', 'type': 'QString', 'value': 'collection'})
 
     layer_el = ET.SubElement(symbol_el, 'layer', {
-        'pass': '0',
+        'pass': '0',  # nosec B105 - "pass" e' l'attributo QGIS che indica
+        # l'ordine di rendering (render pass) del layer di simbolo, non una
+        # password: falso positivo dello scanner sulla stringa "pass".
         'class': 'SvgMarker',
         'locked': '0',
         'enabled': '1',
@@ -290,6 +293,11 @@ def build_style_document(symbol_elements):
     """Costruisce il documento XML completo <qgis_style> a partire da un
     elenco di elementi <symbol> già pronti.
 
+    L'indentazione viene applicata con ``ElementTree.indent`` (nativo dal
+    modulo standard, disponibile da Python 3.9), evitando di dover
+    ri-analizzare l'XML con un parser DOM (``xml.dom.minidom``) solo per
+    ottenere un'indentazione leggibile.
+
     :param symbol_elements: elenco di Element <symbol>.
     :returns: stringa XML formattata (pretty-printed), pronta per essere
               scritta su file.
@@ -300,15 +308,19 @@ def build_style_document(symbol_elements):
     for el in symbol_elements:
         symbols_el.append(el)
 
-    rough_string = ET.tostring(root, encoding='utf-8')
-    reparsed = minidom.parseString(rough_string)
-    pretty = reparsed.toprettyxml(indent='  ', encoding='UTF-8').decode('utf-8')
+    if hasattr(ET, 'indent'):
+        # Python >= 3.9 (ambiente QGIS 4.x): indentazione nativa, nessun
+        # parsing aggiuntivo del documento.
+        ET.indent(root, space='  ')
+        xml_body = ET.tostring(root, encoding='unicode')
+    else:
+        # Fallback per Python < 3.9: nessuna indentazione "carina", ma il
+        # documento resta perfettamente valido e importabile in QGIS.
+        xml_body = ET.tostring(root, encoding='unicode')
 
-    # Rimuove le righe vuote che toprettyxml tende ad aggiungere
-    lines = [line for line in pretty.splitlines() if line.strip()]
-
-    # Aggiunge il DOCTYPE atteso da QGIS per i file di stile
-    if lines and lines[0].startswith('<?xml'):
-        lines.insert(1, '<!DOCTYPE qgis_style>')
-
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<!DOCTYPE qgis_style>',
+        xml_body.rstrip('\n'),
+    ]
     return '\n'.join(lines) + '\n'
