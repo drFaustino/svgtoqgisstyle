@@ -240,6 +240,8 @@ class SvgToQgisStyleDialog(QDialog):
     def clear_list(self):
         self.entries = []
         self.list_widget.clear()
+        self.progress_bar.setValue(0)
+        self.lbl_status.setText('')
         self._update_convert_button_state()
 
     def _add_svg_paths(self, paths):
@@ -457,6 +459,16 @@ class SvgToQgisStyleDialog(QDialog):
             try:
                 if entry.is_modified and svg_out_dir:
                     out_svg_path = os.path.join(svg_out_dir, os.path.basename(entry.path))
+                    # Sicurezza: il file SVG originale non deve MAI essere
+                    # sovrascritto. Nel caso limite in cui il percorso di
+                    # destinazione coincida con quello del file di origine
+                    # (ad es. se la cartella di destinazione dei colori
+                    # applicati coincidesse con quella sorgente), si
+                    # aggiunge un suffisso per garantire che la copia
+                    # ricolorata venga scritta altrove.
+                    if os.path.abspath(out_svg_path) == os.path.abspath(entry.path):
+                        base, ext = os.path.splitext(out_svg_path)
+                        out_svg_path = '{}_color{}'.format(base, ext)
                     out_svg_path = self._ensure_unique_path(out_svg_path)
                     with open(out_svg_path, 'w', encoding='utf-8') as f:
                         f.write(entry.current_text)
@@ -479,8 +491,6 @@ class SvgToQgisStyleDialog(QDialog):
 
         self.progress_bar.setValue(total)
         QCoreApplication.processEvents()
-
-        self.progress_bar.setValue(0)
 
         if not symbol_elements:
             self._set_controls_enabled(True)
@@ -516,6 +526,10 @@ class SvgToQgisStyleDialog(QDialog):
             message += '\n\n' + self.tr('The following files were skipped due to errors:') + '\n'
             message += '\n'.join(errors)
         QMessageBox.information(self, self.tr('Conversion completed'), message)
+
+        # Una volta raggiunto il valore massimo (conversione completata),
+        # la barra di avanzamento torna a zero, pronta per un nuovo utilizzo.
+        self.progress_bar.setValue(0)
 
     @staticmethod
     def _ensure_unique_path(path):
