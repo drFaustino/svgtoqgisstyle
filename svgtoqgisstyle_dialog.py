@@ -103,6 +103,9 @@ class SvgToQgisStyleDialog(QDialog):
         self.btn_clear_list = QPushButton(self.tr('Clear list'), self)
         source_layout.addWidget(self.btn_clear_list)
 
+        self.btn_new = QPushButton(self.tr('New'), self)
+        source_layout.addWidget(self.btn_new)
+
         main_layout.addLayout(source_layout)
 
         # --- Lista con anteprime ---------------------------------------------
@@ -197,6 +200,7 @@ class SvgToQgisStyleDialog(QDialog):
         self.action_select_folder.triggered.connect(self.select_folder)
         self.action_select_files.triggered.connect(self.select_files)
         self.btn_clear_list.clicked.connect(self.clear_list)
+        self.btn_new.clicked.connect(self.new_session)
 
         self.btn_bg_color.clicked.connect(lambda: self._pick_color('bg'))
         self.btn_fg_color.clicked.connect(lambda: self._pick_color('fg'))
@@ -241,6 +245,40 @@ class SvgToQgisStyleDialog(QDialog):
         self.list_widget.clear()
         self.progress_bar.setValue(0)
         self.lbl_status.setText('')
+        self._refresh_source_label()
+        self._update_convert_button_state()
+
+    def new_session(self):
+        """Ripristina la finestra allo stato iniziale: svuota l'elenco dei
+        file SVG, i colori impostati, l'ambito di applicazione e la
+        destinazione del file di stile.
+        """
+        has_something_to_lose = bool(
+            self.entries or self.output_path
+            or self.chk_apply_bg.isChecked() or self.chk_apply_fg.isChecked()
+        )
+        if has_something_to_lose:
+            reply = QMessageBox.question(
+                self, self.tr('New'),
+                self.tr('This will clear the loaded SVG list, the preview '
+                         'colors and the selected destination. Continue?'),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
+        self.clear_list()
+
+        self.chk_apply_bg.setChecked(False)
+        self.chk_apply_fg.setChecked(False)
+        self.bg_color = QColor(DEFAULT_BG_COLOR)
+        self.fg_color = QColor(DEFAULT_FG_COLOR)
+        self._update_color_buttons()
+        self.radio_apply_all.setChecked(True)
+
+        self.output_path = ''
+        self.line_output.clear()
         self._update_convert_button_state()
 
     def _add_svg_paths(self, paths):

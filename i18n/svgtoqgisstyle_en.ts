@@ -43,6 +43,14 @@
         <translation>Clear list</translation>
     </message>
     <message>
+        <source>New</source>
+        <translation>New</translation>
+    </message>
+    <message>
+        <source>This will clear the loaded SVG list, the preview colors and the selected destination. Continue?</source>
+        <translation>This will clear the loaded SVG list, the preview colors and the selected destination. Continue?</translation>
+    </message>
+    <message>
         <source>Preview colors</source>
         <translation>Preview colors</translation>
     </message>

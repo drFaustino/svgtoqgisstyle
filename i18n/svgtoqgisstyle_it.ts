@@ -43,6 +43,14 @@
         <translation>Svuota elenco</translation>
     </message>
     <message>
+        <source>New</source>
+        <translation>Nuovo</translation>
+    </message>
+    <message>
+        <source>This will clear the loaded SVG list, the preview colors and the selected destination. Continue?</source>
+        <translation>Verranno azzerati l'elenco dei file SVG caricati, i colori di anteprima e la destinazione selezionata. Continuare?</translation>
+    </message>
+    <message>
         <source>Preview colors</source>
         <translation>Colori di anteprima</translation>
     </message>
