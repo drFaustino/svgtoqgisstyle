@@ -62,3 +62,5 @@ svgtoqgisstyle/
     ├── svgtoqgisstyle_en.ts
     └── svgtoqgisstyle_it.ts
 ```
+
+<img width="732" height="680" alt="img1" src="https://github.com/user-attachments/assets/c20e05ff-0d02-4c34-9cc7-c3aa13e23324" />
